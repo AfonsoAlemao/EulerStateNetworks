@@ -4,10 +4,11 @@ Main file of the repository with the main class definitions
 @author: gallicch
 """
 
+
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import Ridge
 
 class EulerReservoirCell(keras.layers.Layer):
     #Implements the reservoir layer of the Euler State Network
@@ -243,7 +244,7 @@ class EuSN(keras.Model):
 
         ])
         
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
        
         
@@ -288,7 +289,7 @@ class ESN(keras.Model):
                                                           spectral_radius = spectral_radius,
                                                           leaky = leaky))
         ])
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
         
        
@@ -335,7 +336,7 @@ class RESN(keras.Model):
                                                           spectral_radius = spectral_radius,
                                                           leaky = leaky))
         ])
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
         
        
@@ -408,21 +409,21 @@ class DeepESN(keras.Model):
                             return_sequences = False)
         )
         
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
         
        
         
     def call(self, inputs):       
         x = inputs
-        for i in range(len(model.reservoir.layers)-1):
-            allstates,r = model.reservoir.layers[i](x)
+        for i in range(len(self.reservoir.layers)-1):
+            allstates,r = self.reservoir.layers[i](x)
             if (i==0):
                 reservoir_states = r
             else:
                 reservoir_states = np.concatenate((reservoir_states,r), axis = 1)
             x = allstates
-        r = model.reservoir.layers[-1](x)
+        r = self.reservoir.layers[-1](x)
         reservoir_states = np.concatenate((reservoir_states,r), axis = 1)
         
         output = self.readout.predict(reservoir_states)
@@ -493,7 +494,7 @@ class EuSN_buffer(keras.Model):
 
         ])
         
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
        
         
@@ -576,7 +577,7 @@ class ESN_buffer(keras.Model):
                                                           spectral_radius = spectral_radius,
                                                           leaky = leaky))
         ])
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
         
        
@@ -657,7 +658,7 @@ class RESN_buffer(keras.Model):
                                                           spectral_radius = spectral_radius,
                                                           leaky = leaky))
         ])
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
         
        
@@ -760,7 +761,7 @@ class DeepESN_buffer(keras.Model):
                             return_sequences = False)
         )
         
-        self.readout = RidgeClassifier(alpha = readout_regularizer, solver = 'svd')
+        self.readout = Ridge(alpha = readout_regularizer, solver = 'svd')
 
     def reservoir_buffer(self, x, reservoir_number):
         buffer_size = self.buffer_size
@@ -794,7 +795,7 @@ class DeepESN_buffer(keras.Model):
         
     def call(self, inputs):
         x = inputs
-        for i in range(len(model.reservoir.layers)-1):
+        for i in range(len(self.reservoir.layers)-1):
             allstates,r = self.reservoir_buffer(x,i)
             if (i==0):
                 reservoir_states = r
